@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quatrion Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./src/css/variables.css">
+<link rel="stylesheet" href="./src/css/main.css">
+<link rel="stylesheet" href="./src/css/components.css">
+<link rel="stylesheet" href="./src/css/pages.css">
+</head>
+<body>
+
+<div class="bg-ambient" aria-hidden="true"></div>
+
+<!-- Logo — símbolos SVG reutilizados via <use>. "quatrionIcon" é o frasco+átomo
+     sozinho (usado na moldura circular); o nome "QUATRION LAB" fica como texto
+     HTML normal ao lado/abaixo, garantindo legibilidade total sem cortes. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="quatrionIcon" viewBox="140 175 220 300">
+    <g fill="none" stroke="#173654" stroke-width="15" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M232 190h62v66l88 152a28 28 0 01-24 42H168a28 28 0 01-24-42l88-152v-66z"/>
+      <path d="M218 190h90"/>
+    </g>
+    <path d="M176 402h174l28 52a28 28 0 01-24 42H172a28 28 0 01-24-42z" fill="#173654"/>
+    <g fill="none" stroke="#173654" stroke-width="10">
+      <ellipse cx="263" cy="328" rx="74" ry="28"/>
+      <ellipse cx="263" cy="328" rx="74" ry="28" transform="rotate(60 263 328)"/>
+      <ellipse cx="263" cy="328" rx="74" ry="28" transform="rotate(120 263 328)"/>
+    </g>
+    <circle cx="263" cy="328" r="13" fill="#173654"/>
+  </symbol>
+</svg>
+
+<!-- ============================================================================
+     LOGIN
+     ============================================================================ -->
+<div id="login-layer">
+  <div class="login-card glass">
+    <div class="logo-container"><svg><use href="#quatrionIcon"></use></svg></div>
+    <h1>Quatrion Lab</h1>
+    <p class="sub">Entre para acessar o laboratório virtual de Química focado no ENEM.</p>
+    <form id="loginForm" novalidate>
+      <div class="field"><div class="field-shell">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.6 16.2c.7-1.5 1.9-2.2 3.4-2.2s2.7.7 3.4 2.2"/><path d="M15 10.2h4M15 13.4h3"/></svg>
+        <input id="loginMatricula" type="text" placeholder="Matrícula" autocomplete="off" aria-label="Matrícula">
+      </div></div>
+      <div class="field"><div class="field-shell">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+        <input id="loginSenha" type="password" placeholder="Senha" autocomplete="current-password">
+        <button type="button" class="eye-toggle" aria-label="Mostrar senha" onclick="toggleEye('loginSenha', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div></div>
+      <button type="submit" class="btn btn-cyan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+        Entrar
+      </button>
+    </form>
+    <div class="login-divider">ou</div>
+    <button class="btn btn-ghost" onclick="enterApp(true)">Entrar como Visitante</button>
+  </div>
+</div>
+
+<!-- ============================================================================
+     APP SHELL
+     ============================================================================ -->
+<div id="app-shell">
+  <div class="app-shell-inner">
+    <aside class="sidebar">
+      <div class="logo-container"><svg><use href="#quatrionIcon"></use></svg></div>
+      <p class="brand-label">Quatrion Lab</p>
+      <nav class="app-nav">
+        <button class="nav-btn active" data-tab="inicio" onclick="showTab('inicio')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9"/></svg>
+          Início
+        </button>
+        <button class="nav-btn" data-tab="questoes" onclick="showTab('questoes')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="13" height="17" rx="2"/><path d="M8 8h5M8 12h5"/><circle cx="17" cy="17" r="3.2"/><path d="M19.3 19.3L21.5 21.5"/></svg>
+          Questões
+        </button>
+        <button class="nav-btn" data-tab="simulado" onclick="showTab('simulado')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 2h6v3H9z"/><path d="M8.5 12l2 2 4-4.5"/></svg>
+          Simulado
+        </button>
+        <button class="nav-btn" data-tab="games" onclick="showTab('games')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="8" width="19" height="10" rx="5"/><path d="M7 11v4M5 13h4"/><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="18.5" cy="14.5" r="1" fill="currentColor" stroke="none"/></svg>
+          Games
+        </button>
+        <button class="nav-btn" data-tab="simulacoes" onclick="showTab('simulacoes')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/><path d="M7 2h10"/></svg>
+          Simulações
+        </button>
+        <button class="nav-btn" data-tab="evolucao" onclick="showTab('evolucao')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M11 20V4M18 20v-7"/><path d="M3 20h18"/></svg>
+          Evolução
+        </button>
+        <button class="nav-btn" data-tab="configuracoes" onclick="showTab('configuracoes')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.7 7.7 0 000-2l2-1.5-2-3.4-2.3.9a7.6 7.6 0 00-1.7-1L15 3h-4l-.4 2.3a7.6 7.6 0 00-1.7 1l-2.3-.9-2 3.4L6.6 11a7.7 7.7 0 000 2l-2 1.5 2 3.4 2.3-.9c.5.4 1.1.7 1.7 1L10 21h4l.4-2.3a7.6 7.6 0 001.7-1l2.3.9 2-3.4-2-1.5z"/></svg>
+          Configurações
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-btn danger" onclick="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Sair
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===================== MENU MOBILE (drawer) — espelha a Sidebar ===================== -->
+    <div id="mobile-menu-backdrop" onclick="closeMobileMenu()"></div>
+    <div id="mobile-menu" aria-label="Menu de navegação">
+      <div class="logo-container"><svg><use href="#quatrionIcon"></use></svg></div>
+      <p class="brand-label">Quatrion Lab</p>
+      <nav class="app-nav">
+        <button class="nav-btn active" data-tab="inicio" onclick="showTab('inicio');closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9"/></svg>
+          Início
+        </button>
+        <button class="nav-btn" data-tab="questoes" onclick="showTab('questoes');closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="13" height="17" rx="2"/><path d="M8 8h5M8 12h5"/><circle cx="17" cy="17" r="3.2"/><path d="M19.3 19.3L21.5 21.5"/></svg>
+          Questões
+        </button>
+        <button class="nav-btn" data-tab="simulado" onclick="showTab('simulado');closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 2h6v3H9z"/><path d="M8.5 12l2 2 4-4.5"/></svg>
+          Simulado
+        </button>
+        <button class="nav-btn" data-tab="games" onclick="showTab('games');closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="8" width="19" height="10" rx="5"/><path d="M7 11v4M5 13h4"/><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="18.5" cy="14.5" r="1" fill="currentColor" stroke="none"/></svg>
+          Games
+        </button>
+        <button class="nav-btn" data-tab="simulacoes" onclick="showTab('simulacoes');closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/><path d="M7 2h10"/></svg>
+          Simulações
+        </button>
+        <button class="nav-btn" data-tab="evolucao" onclick="showTab('evolucao');closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M11 20V4M18 20v-7"/><path d="M3 20h18"/></svg>
+          Evolução
+        </button>
+        <button class="nav-btn" data-tab="configuracoes" onclick="showTab('configuracoes');closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.7 7.7 0 000-2l2-1.5-2-3.4-2.3.9a7.6 7.6 0 00-1.7-1L15 3h-4l-.4 2.3a7.6 7.6 0 00-1.7 1l-2.3-.9-2 3.4L6.6 11a7.7 7.7 0 000 2l-2 1.5 2 3.4 2.3-.9c.5.4 1.1.7 1.7 1L10 21h4l.4-2.3a7.6 7.6 0 001.7-1l2.3.9 2-3.4-2-1.5z"/></svg>
+          Configurações
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-btn danger" onclick="closeMobileMenu();logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Sair
+        </button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="mobile-topbar">
+        <div class="left-group">
+          <button class="hamburger-btn" onclick="openMobileMenu()" aria-label="Abrir menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+          <div class="logo-container"><svg><use href="#quatrionIcon"></use></svg></div>
+          <span class="mt-title">Quatrion <b>Lab</b></span>
+        </div>
+        <div class="right-group">
+          <button class="icon-btn" onclick="logout()" aria-label="Sair">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="content"><div class="content-inner">
+
+        <!-- ============ INÍCIO ============ -->
+        <section class="tab-screen active" id="tab-inicio">
+          <div class="greet-row"><h1>Olá, aluno! 👋</h1><p>Pronto para evoluir hoje?</p></div>
+
+          <!-- Química Orgânica — card único em largura total, com a trilha de módulos -->
+          <section class="organic-area" aria-labelledby="organicTitle">
+            <div class="organic-head">
+              <div class="oh-text">
+                <span class="kicker">Trilha em destaque</span>
+                <h3 id="organicTitle">Química Orgânica</h3>
+                <p>Explore conteúdos, exercícios e simulados sobre o tema que mais cai no ENEM.</p>
+              </div>
+              <div class="oh-art" aria-hidden="true"><svg viewBox="0 0 100 100" fill="none" width="76" height="76">
+                <circle cx="50" cy="50" r="9" fill="#00E5C9"/><circle cx="25" cy="30" r="6" fill="#00A896"/><circle cx="75" cy="28" r="6" fill="#00A896"/>
+                <circle cx="22" cy="72" r="6" fill="#00A896"/><circle cx="78" cy="74" r="6" fill="#00A896"/>
+                <line x1="50" y1="50" x2="25" y2="30" stroke="#00E5C9" stroke-width="2" opacity=".6"/><line x1="50" y1="50" x2="75" y2="28" stroke="#00E5C9" stroke-width="2" opacity=".6"/>
+                <line x1="50" y1="50" x2="22" y2="72" stroke="#00E5C9" stroke-width="2" opacity=".6"/><line x1="50" y1="50" x2="78" y2="74" stroke="#00E5C9" stroke-width="2" opacity=".6"/>
+              </svg></div>
+            </div>
+
+            <div class="module-grid">
+              <article class="module-card">
+                <span class="module-tag">Módulo 1</span>
+                <h4>Exp. 01: Serpente de Carbono</h4>
+                <p>Desidratação da sacarose com ácido sulfúrico (H₂SO₄) — teoria, segurança e prática 2D.</p>
+                <button class="btn btn-cyan btn-sm module-action" onclick="openCarbonExperiment()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 5.5v13l11-6.5-11-6.5z"/></svg>
+                  Iniciar Experimento
+                </button>
+              </article>
+
+              <article class="module-card disabled" aria-disabled="true">
+                <span class="module-tag">Módulo 2</span>
+                <h4>Nomenclatura IUPAC</h4>
+                <p>Aprenda a nomear cadeias carbônicas seguindo as regras oficiais da IUPAC.</p>
+                <span class="module-lock">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+                  Bloqueado
+                </span>
+              </article>
+
+              <article class="module-card disabled" aria-disabled="true">
+                <span class="module-tag">Módulo 3</span>
+                <h4>Isomeria Espacial</h4>
+                <p>Compare isômeros geométricos e ópticos e entenda o comportamento das moléculas.</p>
+                <span class="module-lock">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+                  Bloqueado
+                </span>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <!-- ============ QUESTÕES ============ -->
+        <section class="tab-screen" id="tab-questoes">
+          <div class="page-head"><span class="kicker">Quatrion Lab · Questões</span><h1>Banco de Questões</h1><p>Banco de questões ENEM com filtros inteligentes.</p></div>
+          <div class="highlight-card">
+            <div class="hc-body">
+              <h3>Questões Rápidas</h3>
+              <p>10 questões de Química com feedback imediato — veja na hora se acertou ou errou.</p>
+              <button class="btn btn-cyan btn-sm" onclick="startQuiz(QUESTOES_QUESTIONS,'practice',{title:'Questões Rápidas',origin:'questoes'})">Começar</button>
+            </div>
+          </div>
+          <div class="search-row"><div class="search-shell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" placeholder="Buscar questões..."></div></div>
+          <div class="pill-scroll">
+            <button class="pill active" onclick="pillSelect(this)">Todas</button>
+            <button class="pill" onclick="pillSelect(this)">Química</button>
+          </div>
+          <p class="section-label">Tópicos</p>
+          <!-- desabilitada a pedido: visível, sem interação, sem navegação -->
+          <div class="list-row disabled" aria-disabled="true">
+            <div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/><path d="M7 2h10"/></svg></div>
+            <div class="list-body"><div class="lt">Química Orgânica</div><div class="ls mono">1.245 questões</div></div>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+          </div>
+        </section>
+
+        <!-- ============ SIMULADO ============ -->
+        <section class="tab-screen" id="tab-simulado">
+          <div class="page-head"><span class="kicker">Quatrion Lab · Simulado</span><h1>Simulado</h1><p>Banco de simulados ENEM para você treinar como no dia da prova.</p></div>
+          <div class="list-row" onclick="startQuiz(SIMULADO_ENEM_01,'exam',{title:'Simulado ENEM 01',origin:'simulado'})">
+            <div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+            <div class="list-body"><div class="lt">Simulado ENEM 01</div><div class="ls mono">10 questões · múltipla escolha</div></div>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+          </div>
+          <div class="list-row" onclick="startQuiz(SIMULADO_ENEM_02,'exam',{title:'Simulado ENEM 02',origin:'simulado'})">
+            <div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+            <div class="list-body"><div class="lt">Simulado ENEM 02</div><div class="ls mono">10 questões · múltipla escolha</div></div>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+          </div>
+          <div class="list-row" onclick="startQuiz(SIMULADO_TEMATICO,'exam',{title:'Simulado Temático Química',origin:'simulado'})">
+            <div class="list-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+            <div class="list-body"><div class="lt">Simulado Temático Química</div><div class="ls mono">10 questões · múltipla escolha</div></div>
+            <span class="status-badge thematic">Temático</span>
+          </div>
+        </section>
+
+        <!-- ============ GAMES ============ -->
+        <section class="tab-screen" id="tab-games">
+          <div class="page-head"><span class="kicker">Quatrion Lab · Games</span><h1>Games</h1><p>Aprenda se divertindo com quizzes e desafios interativos.</p></div>
+          <div class="highlight-card purple">
+            <div class="hc-body">
+              <h3>Desafio Contra o Tempo</h3>
+              <p>10 perguntas rápidas, 60 segundos no relógio — cada acerto vale 10 pontos. Quanto mais rápido, melhor!</p>
+              <button class="btn btn-cyan btn-sm" onclick="startQuiz(GAMES_QUESTIONS,'timed',{title:'Desafio Contra o Tempo',origin:'games',theme:'purple'})">Jogar</button>
+            </div>
+          </div>
+          <div class="list-row" onclick="toast('Desafio em produção — em breve!')">
+            <div class="list-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8M12 17v4"/><path d="M6 4h12v3a6 6 0 01-12 0V4z"/><path d="M6 5H4a3 3 0 003 3M18 5h2a3 3 0 01-3 3"/></svg></div>
+            <div class="list-body"><div class="lt">Desafio dos Compostos</div><div class="ls">Nível: Médio</div></div>
+            <span class="status-badge timed">Em breve</span>
+          </div>
+        </section>
+
+        <!-- ============ SIMULAÇÕES ============ -->
+        <section class="tab-screen" id="tab-simulacoes">
+          <div class="page-head">
+            <span class="kicker">Quatrion Lab · Simulações</span>
+            <h1 id="expPageTitle">Titulação Ácido-Base</h1>
+            <p id="expPageSubtitle">Adicione base (NaOH) a uma solução ácida com fenolftaleína e observe o ponto de viragem.</p>
+          </div>
+          <div class="exp-tabs">
+            <button class="exp-tab active" data-exp="titulacao" onclick="showExperiment('titulacao')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/><path d="M7 2h10"/></svg>
+              Titulação Ácido-Base
+            </button>
+            <button class="exp-tab" data-exp="chama" onclick="showExperiment('chama')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2c4 5 7 9 7 13a7 7 0 11-14 0c0-4 3-8 7-13z"/></svg>
+              Teste de Chama
+            </button>
+            <button class="exp-tab" data-exp="elefante" onclick="showExperiment('elefante')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3h8v6l4 9a2 2 0 01-1.8 3H5.8A2 2 0 014 18l4-9V3z"/><circle cx="9.5" cy="16" r="1" fill="currentColor" stroke="none"/><circle cx="13" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="16" cy="15.5" r=".8" fill="currentColor" stroke="none"/></svg>
+              Pasta de Dente de Elefante
+            </button>
+          </div>
+
+          <div class="experiment active" id="exp-titulacao">
+            <div class="exp-body">
+              <div class="stage">
+                <div class="t1-zone">
+                  <div class="t1-burette"><div class="t1-bulb"></div><div class="t1-tube"></div><div class="t1-tip"></div></div>
+                  <div class="t1-beaker-wrap">
+                    <div class="t1-beaker"><div class="t1-liquid" id="t1Liquid"><div class="t1-surface"></div></div></div>
+                    <div class="t1-glow" id="t1Glow"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel glass">
+                <h2>Painel de Controle</h2>
+                <p class="desc">Cada clique libera uma gota de NaOH na solução. Ao atingir o ponto de viragem, a fenolftaleína torna a solução rosa/magenta.</p>
+                <div class="t1-ph-box">
+                  <div class="t1-ph-value mono" id="t1PhValue">2.0</div>
+                  <div class="t1-ph-label">pH da solução</div>
+                  <div class="t1-scale"><div class="t1-scale-fill" id="t1ScaleFill"></div></div>
+                  <div class="t1-scale-labels"><span>Ácido</span><span>Neutro</span><span>Básico</span></div>
+                </div>
+                <div class="readout" id="t1Status">Solução ácida — incolor, sem viragem do indicador.</div>
+                <p class="section-label">Gotas: <span class="mono" id="t1Count">0</span>/<span class="mono" id="t1Max">3</span></p>
+                <button class="btn btn-cyan" id="t1Btn" onclick="t1AddDrop()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2c4 5 7 9 7 13a7 7 0 11-14 0c0-4 3-8 7-13z"/></svg>
+                  Adicionar NaOH
+                </button>
+                <button class="btn btn-ghost" onclick="t1Reset()">Reiniciar experimento</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="experiment" id="exp-chama">
+            <div class="exp-body">
+              <div class="stage">
+                <div class="t2-zone">
+                  <div class="t2-flame-wrap" id="t2FlameWrap">
+                    <div class="t2-flame-layer t2-outer" id="t2Outer"></div><div class="t2-flame-layer t2-mid" id="t2Mid"></div><div class="t2-flame-layer t2-core" id="t2Core"></div>
+                  </div>
+                  <div class="t2-burner"><div class="t2-tube" id="t2Tube"></div><div class="t2-collar"></div><div class="t2-base"></div></div>
+                  <div class="t2-glow" id="t2Glow"></div>
+                </div>
+              </div>
+              <div class="panel glass">
+                <h2>Painel de Controle</h2>
+                <p class="desc">Aproxime uma haste com sal metálico da chama do bico de Bunsen e observe a coloração característica de cada elemento.</p>
+                <p class="section-label">Sais metálicos</p>
+                <button class="metal-btn" id="metalCu" style="color:#39FF14" onclick="t2SetMetal('cobre')"><span class="swatch" style="background:#39FF14"></span><span>Cobre (Cu)<small>Chama verde neon</small></span></button>
+                <button class="metal-btn" id="metalSr" style="color:#FF4500" onclick="t2SetMetal('estroncio')"><span class="swatch" style="background:#FF4500"></span><span>Estrôncio (Sr)<small>Chama vermelho carmesim</small></span></button>
+                <button class="metal-btn" id="metalNa" style="color:#FFD447" onclick="t2SetMetal('sodio')"><span class="swatch" style="background:#FFD447"></span><span>Sódio (Na)<small>Chama amarelo-ouro</small></span></button>
+                <div class="readout" id="t2Status">Chama padrão do bico de Bunsen — nenhum sal testado.</div>
+                <button class="btn btn-purple-ghost" onclick="t2Clear()">Limpar Haste</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="experiment" id="exp-elefante">
+            <div class="exp-body">
+              <div class="stage" style="min-height:460px">
+                <div class="t3-zone">
+                  <div class="t3-alert" id="t3Alert">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9L2.6 17a2 2 0 001.7 3h15.4a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+                    Reação Exotérmica!
+                  </div>
+                  <div class="t3-flask-wrap" id="t3FlaskWrap">
+                    <div class="t3-flask"><div class="t3-liquid" id="t3Liquid"></div><div class="t3-flask-shine"></div></div>
+                    <div class="t3-flask-outline"></div>
+                    <div class="t3-flask-rim"></div>
+                    <div class="t3-foam-mound" id="t3FoamMound">
+                      <div class="t3-mound-b"></div><div class="t3-mound-b"></div><div class="t3-mound-b"></div>
+                      <div class="t3-mound-b"></div><div class="t3-mound-b"></div><div class="t3-mound-b"></div>
+                    </div>
+                    <div class="t3-eruption-layer" id="t3Eruption"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel glass">
+                <h2>Painel de Controle</h2>
+                <p class="desc">O frasco contém peróxido de hidrogênio concentrado (H₂O₂) com um pouco de detergente. Adicione o catalisador de iodeto de potássio (KI) para decompor o H₂O₂ rapidamente.</p>
+                <div class="readout" id="t3Status">Solução amarelada em repouso — nenhuma reação iniciada.</div>
+                <p class="section-label">Catalisador</p>
+                <button class="btn btn-cyan" id="t3Btn" onclick="t3AddCatalyst()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v6M12 2l3 3M12 2L9 5"/><circle cx="12" cy="15" r="7"/></svg>
+                  Adicionar Catalisador (KI)
+                </button>
+                <button class="btn btn-ghost" onclick="t3Reset()">Reiniciar experimento</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ EVOLUÇÃO ============ -->
+        <section class="tab-screen" id="tab-evolucao">
+          <div class="page-head"><span class="kicker">Quatrion Lab · Evolução</span><h1>Evolução</h1><p>Acompanhe seu desempenho e veja seu progresso em cada área.</p></div>
+
+          <div class="evo-metric-grid">
+            <div class="evo-box acertos"><div class="eb-label">Acertos</div><div class="eb-value mono" id="evoAcertosValue">0</div><div class="eb-pct mono" id="evoAcertosPct">0%</div></div>
+            <div class="evo-box erros"><div class="eb-label">Erros</div><div class="eb-value mono" id="evoErrosValue">0</div><div class="eb-pct mono" id="evoErrosPct">0%</div></div>
+            <div class="evo-box total"><div class="eb-label">Questões respondidas</div><div class="eb-value mono" id="evoTotalValue">0</div></div>
+          </div>
+
+          <div class="evo-chart-card">
+            <h4>Desempenho geral</h4>
+            <svg viewBox="0 0 320 150" style="width:100%;height:auto" preserveAspectRatio="xMidYMid meet">
+              <defs><linearGradient id="evoFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00E5C9" stop-opacity="0.35"/><stop offset="100%" stop-color="#00E5C9" stop-opacity="0"/></linearGradient></defs>
+              <polyline points="10,95 62,80 114,88 166,55 218,60 300,20" fill="none" stroke="#00E5C9" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <polygon points="10,95 62,80 114,88 166,55 218,60 300,20 300,120 10,120" fill="url(#evoFade)" stroke="none"/>
+              <g fill="#00E5C9"><circle cx="10" cy="95" r="4"/><circle cx="62" cy="80" r="4"/><circle cx="114" cy="88" r="4"/><circle cx="166" cy="55" r="4"/><circle cx="218" cy="60" r="4"/><circle cx="300" cy="20" r="4.5"/></g>
+              <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#94A3B8" text-anchor="middle">
+                <text x="10" y="138">10/05</text><text x="62" y="138">17/05</text><text x="114" y="138">24/05</text><text x="166" y="138">31/05</text><text x="218" y="138">07/06</text><text x="300" y="138">14/06</text>
+              </g>
+            </svg>
+          </div>
+
+          <div class="evo-mastery">
+            <p class="section-label" style="margin-top:0">Pontos fortes</p>
+            <div class="evo-mastery-item">
+              <div class="evo-mastery-top"><span class="mt-name">Química Orgânica</span><span class="mt-pct mono" id="masteryPct">78%</span></div>
+              <div class="evo-mastery-track"><div class="evo-mastery-fill" id="masteryFill"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ CONFIGURAÇÕES ============ -->
+        <section class="tab-screen" id="tab-configuracoes">
+          <div class="page-head"><span class="kicker">Quatrion Lab · Configurações</span><h1>Configurações</h1><p>Perfil, preferências e sessão do laboratório.</p></div>
+          <div class="settings-block">
+            <div class="settings-row">
+              <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+              <div class="sb"><div class="st">Notificações</div><div class="ss">Lembretes de estudo e novidades</div></div>
+              <div class="toggle on"></div>
+            </div>
+            <button class="settings-row" onclick="logout()" style="width:100%;text-align:left;cursor:pointer">
+              <div class="si" style="background:rgba(255,77,77,.12);color:#FF4D4D"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></div>
+              <div class="sb"><div class="st" style="color:#FF4D4D">Sair</div><div class="ss">Encerrar sessão e voltar ao login</div></div>
+            </button>
+          </div>
+        </section>
+
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     EXPERIMENTO: SERPENTE DE CARBONO — modal em 2 etapas (Teoria → Prática 2D)
+     Controlado por src/js/modules/simulations.js
+     ============================================================================ -->
+<div id="carbon-overlay" role="dialog" aria-modal="true" aria-labelledby="carbonTitle">
+  <div class="carbon-topbar">
+    <button class="carbon-exit" onclick="closeCarbonExperiment()" aria-label="Sair do experimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="carbon-heading">
+      <span class="carbon-kicker">Quatrion Lab · Experimento 01</span>
+      <h2 id="carbonTitle">Serpente de Carbono (Desidratação do Açúcar)</h2>
+    </div>
+    <span class="carbon-step-badge" id="carbonStepBadge">Etapa 1 · Teoria</span>
+  </div>
+
+  <div class="carbon-scroll">
+
+    <!-- ============ ETAPA A — Teoria e Segurança ============ -->
+    <div class="carbon-stage active" id="carbonStageA">
+      <div class="carbon-theory-grid">
+        <div class="carbon-panel glass">
+          <h3>Teoria</h3>
+          <p>O ácido sulfúrico (H₂SO₄) atua como um potente <b>agente desidratante</b> sobre a sacarose (C₁₂H₂₂O₁₁): ele retira hidrogênio e oxigênio na proporção exata da água, desidratando o açúcar.</p>
+          <p>O resultado é uma <b>massa expansiva de carvão</b> (carbono grafítico) que cresce para fora do recipiente, acompanhada de vapor de água e gases.</p>
+          <div class="carbon-reaction mono">C₁₂H₂₂O₁₁ → 12 C + 11 H₂O</div>
+          <p class="carbon-note">A reação é fortemente exotérmica — a mistura escurece, se expande e libera vapor acre. No laboratório real ela exige capela e supervisão.</p>
+        </div>
+        <div class="carbon-panel glass">
+          <h3>EPIs obrigatórios</h3>
+          <ul class="carbon-epi-list">
+            <li><span class="cei-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 9.5h19"/><path d="M3.2 9.5l1.3 5.2A2.2 2.2 0 006.7 16.5h1.1a2.2 2.2 0 002.1-1.6l.6-2.2a2 2 0 013.8 0l.6 2.2a2.2 2.2 0 002.1 1.6h1.1a2.2 2.2 0 002.2-1.8l1.3-5.2"/></svg></span>Óculos de Proteção</li>
+            <li><span class="cei-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3l3 2.4L15 3l4.5 2.2a2 2 0 011.2 2.3l-1 5.4-2.6-.5V21H7v-8.6l-2.6.5-1-5.4a2 2 0 011.2-2.3L9 3z"/></svg></span>Jaleco</li>
+            <li><span class="cei-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 12V6.5a1.6 1.6 0 013.2 0V11M10.2 11V5.4a1.6 1.6 0 013.2 0V11M13.4 11V6.6a1.6 1.6 0 013.2 0V13"/><path d="M16.6 12.4l1.2-1.2a1.7 1.7 0 012.4 2.4l-3.6 3.7A6 6 0 0112.2 19H10a5 5 0 01-5-5v-1.6a1.6 1.6 0 013.2 0"/></svg></span>Luvas Nitrílicas</li>
+          </ul>
+          <p class="carbon-note">Sem os três itens a bancada fica bloqueada para uso.</p>
+        </div>
+      </div>
+      <div class="carbon-stage-actions">
+        <button class="btn btn-cyan" onclick="carbonGoToPractice()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+          Ir para a Prática 2D
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ ETAPA B — Prática Interativa 2D ============ -->
+    <div class="carbon-stage" id="carbonStageB">
+      <div class="carbon-lab">
+
+        <!-- Barra lateral esquerda: Lobby de Segurança -->
+        <aside class="carbon-lobby" aria-label="Lobby de segurança">
+          <div class="carbon-lobby-status" id="carbonLobbyStatus">
+            <span class="cls-dot" aria-hidden="true"></span>
+            <span id="carbonSafetyLabel">Segurança pendente</span>
+          </div>
+          <p class="carbon-lobby-title">Passo 1: Equipe seu EPI</p>
+          <button class="epi-btn" id="epi-oculos" aria-pressed="false" onclick="carbonToggleEpi('oculos')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 9.5h19"/><path d="M3.2 9.5l1.3 5.2A2.2 2.2 0 006.7 16.5h1.1a2.2 2.2 0 002.1-1.6l.6-2.2a2 2 0 013.8 0l.6 2.2a2.2 2.2 0 002.1 1.6h1.1a2.2 2.2 0 002.2-1.8l1.3-5.2"/></svg>
+            <span>Óculos de Proteção</span>
+          </button>
+          <button class="epi-btn" id="epi-jaleco" aria-pressed="false" onclick="carbonToggleEpi('jaleco')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3l3 2.4L15 3l4.5 2.2a2 2 0 011.2 2.3l-1 5.4-2.6-.5V21H7v-8.6l-2.6.5-1-5.4a2 2 0 011.2-2.3L9 3z"/></svg>
+            <span>Jaleco</span>
+          </button>
+          <button class="epi-btn" id="epi-luvas" aria-pressed="false" onclick="carbonToggleEpi('luvas')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 12V6.5a1.6 1.6 0 013.2 0V11M10.2 11V5.4a1.6 1.6 0 013.2 0V11M13.4 11V6.6a1.6 1.6 0 013.2 0V13"/><path d="M16.6 12.4l1.2-1.2a1.7 1.7 0 012.4 2.4l-3.6 3.7A6 6 0 0112.2 19H10a5 5 0 01-5-5v-1.6a1.6 1.6 0 013.2 0"/></svg>
+            <span>Luvas Nitrílicas</span>
+          </button>
+          <div class="carbon-lobby-progress">
+            <span>EPIs equipados</span>
+            <span class="clp-count mono"><span id="carbonEpiCount">0</span>/3</span>
+          </div>
+        </aside>
+
+        <!-- Área central: Bancada -->
+        <div class="carbon-bench-wrap">
+          <h3 class="carbon-bench-title">Zona B: Bancada de Experimentos</h3>
+          <div class="carbon-bench" id="carbonBench">
+            <div class="carbon-lock" id="carbonLock">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+              <p>Equipe os EPIs primeiro</p>
+            </div>
+
+            <div class="bench-item" id="benchAcid" role="button" tabindex="0" aria-label="Frasco de ácido sulfúrico" onclick="carbonPickAcid()" onkeydown="carbonBenchKey(event,'acid')">
+              <span class="carbon-hint" id="hintAcid" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 4v13M12 17l-5-5M12 17l5-5"/></svg>
+                <span>Clique no ácido</span>
+              </span>
+              <span class="acid-bottle">
+                <span class="acid-cap"></span>
+                <span class="acid-liquid"></span>
+                <span class="acid-tag">H₂SO₄</span>
+              </span>
+              <span class="bench-label">Frasco de Ácido<small>Ácido Sulfúrico</small></span>
+            </div>
+
+            <div class="bench-item" id="benchBeaker" role="button" tabindex="0" aria-label="Béquer com açúcar" onclick="carbonPickBeaker()" onkeydown="carbonBenchKey(event,'beaker')">
+              <span class="carbon-hint" id="hintBeaker" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 4v13M12 17l-5-5M12 17l5-5"/></svg>
+                <span>Clique no béquer</span>
+              </span>
+              <span class="beaker">
+                <span class="beaker-sugar"></span>
+                <span class="carbon-snake" id="carbonSnake"></span>
+                <span class="beaker-shine"></span>
+              </span>
+              <span class="bench-label">Béquer com Açúcar<small>Sacarose C₁₂H₂₂O₁₁</small></span>
+            </div>
+          </div>
+
+          <div class="readout" id="carbonStatus">Bancada pronta. Equipe os EPIs para liberar o experimento.</div>
+          <div class="carbon-result" id="carbonResult" role="status">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6.5L9.5 17 4 11.5"/></svg>
+            <span>Experimento Concluído!</span>
+          </div>
+          <div class="carbon-actions">
+            <button class="btn btn-ghost" onclick="carbonBackToTheory()">Voltar à teoria</button>
+            <button class="btn btn-ghost" onclick="carbonReset()">Reiniciar experimento</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================================
+     QUIZ OVERLAY — compartilhado por Simulado (exam), Questões (practice) e Games (timed)
+     ============================================================================ -->
+<div id="quiz-overlay">
+  <div class="quiz-topbar">
+    <button class="quiz-exit" onclick="exitQuiz()" aria-label="Sair do quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="quiz-progress">
+      <div class="quiz-progress-label"><span id="quizProgressLabel">Questão 1 de 10</span><span id="quizTitleTag" class="mono"></span></div>
+      <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+    </div>
+    <div class="quiz-side-stat" id="quizSideStat"></div>
+  </div>
+  <div class="quiz-scroll"><div class="quiz-content">
+    <div id="quizPlay">
+      <div class="glass quiz-question-card"><span class="quiz-tag" id="quizTag">Química</span><p class="quiz-enunciado" id="quizEnunciado">Carregando...</p></div>
+      <div class="quiz-alternatives" id="quizAlternatives"></div>
+      <div class="quiz-feedback-flash" id="quizFlash"></div>
+    </div>
+    <div class="quiz-results" id="quizResults">
+      <div class="ring"><span class="pct mono" id="quizResultPct">0%</span></div>
+      <h3 id="quizResultTitle">Concluído!</h3>
+      <p id="quizResultMsg">Confira seu desempenho abaixo.</p>
+      <div class="quiz-results-stats">
+        <div class="rs-box"><div class="rv mono" id="quizResultCorrect" style="color:var(--success)">0</div><div class="rl">Acertos</div></div>
+        <div class="rs-box"><div class="rv mono" id="quizResultWrong" style="color:var(--error)">0</div><div class="rl">Erros</div></div>
+        <div class="rs-box"><div class="rv mono" id="quizResultTotal">0</div><div class="rl" id="quizResultTotalLabel">Total</div></div>
+      </div>
+      <div class="quiz-results-actions"><button class="btn btn-ghost" onclick="exitQuiz()">Voltar</button><button class="btn btn-cyan" onclick="retryQuiz()">Repetir</button></div>
+    </div>
+  </div></div>
+  <div class="quiz-footer" id="quizFooter"><div class="quiz-footer-inner"><button class="btn btn-cyan" id="quizConfirmBtn" disabled>Confirmar Resposta</button></div></div>
+</div>
+
+<script type="module" src="./src/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+/* ============================================================================
+   QUATRION LAB — VARIÁVEIS GLOBAIS (cores, fontes, easings, dimensões)
+   Origem: bloco :root do arquivo monolítico original. Nada foi alterado.
+   ============================================================================ */
+:root{
+  --bg:#060F12; --card:rgba(255,255,255,0.04);
+  --border:rgba(148,163,184,0.15); --border-strong:rgba(0,229,201,0.35);
+  --cyan:#00A896; --cyan-bright:#00E5C9;
+  --purple:#6C33A3; --purple-bright:#9B4FE0;
+  --lime:#39FF14; --fire:#FF4500; --gold:#FFD447; --flame-blue:#2E8BFF;
+  --success:#00E575; --error:#FF4D4D;
+  --text-1:#FFFFFF; --text-2:#94A3B8;
+  --text-panel:#E2E8F0;   /* ACESSIBILIDADE: texto legível p/ descrições/rótulos/instruções */
+  --text-3:#5B6B7A;
+  --font-sans:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --sidebar-w:230px;
+}

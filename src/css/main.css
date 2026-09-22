@@ -1,0 +1,17 @@
+/* ============================================================================
+   QUATRION LAB — RESETS GLOBAIS E ESTRUTURA BASE
+   Origem: bloco de resets do arquivo monolítico original. Nada foi alterado.
+   ============================================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text-1);min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;background:none;border:none;color:inherit}
+input{font-family:inherit;color:var(--text-1)}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--cyan-bright);outline-offset:3px;border-radius:6px}
+.bg-ambient{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 15% 15%, rgba(0,229,201,.06), transparent 45%),
+             radial-gradient(circle at 88% 82%, rgba(108,51,163,.10), transparent 50%), var(--bg)}
+.glass{background:linear-gradient(155deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+  border:1px solid var(--border);border-radius:22px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
