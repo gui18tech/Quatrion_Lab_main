@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Quatrion Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060F12; --card:rgba(255,255,255,0.045); --border:rgba(148,163,184,0.16); --border-strong:rgba(0,229,201,.35);
+  --cyan:#00A896; --cyan-bright:#00E5C9; --purple:#6C33A3; --purple-bright:#9B4FE0; --alert:#FFD700;
+  --success:#00E575; --error:#FF4D4D; --amber:#FFB703;
+  --text-1:#fff; --text-2:#94A3B8; --text-panel:#E2E8F0; --text-3:#5B6B7A;
+  --font-sans:'Plus Jakarta Sans',system-ui,sans-serif; --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.22,1,.36,1); --topbar-h:60px; --bottomnav-h:72px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text-1);min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;background:none;border:none;color:inherit}
+input{font-family:inherit;color:#fff}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--cyan-bright);outline-offset:2px;border-radius:6px}
+.bg-ambient{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 15% 12%,rgba(0,229,201,.07),transparent 45%),radial-gradient(circle at 90% 85%,rgba(108,51,163,.12),transparent 50%),var(--bg)}
+.glass{background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:20px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;padding:14px 18px;border-radius:999px;font-weight:800;font-size:13.5px;width:100%;
+  transition:transform .15s var(--ease),filter .15s var(--ease),opacity .15s}
+.btn svg{width:17px;height:17px}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan-bright),var(--cyan));color:#04211D;box-shadow:0 10px 22px -10px rgba(0,229,201,.5)}
+.btn-cyan:hover:not(:disabled){filter:brightness(1.08)}
+.btn-outline{background:transparent;border:1.4px solid var(--border-strong);color:var(--cyan-bright)}
+.btn-outline:hover{background:rgba(0,229,201,.08)}
+.btn-sm{width:auto;padding:10px 18px;font-size:12.5px}
+.btn-ghost-sm{width:auto;padding:8px 14px;font-size:12px;font-weight:700;color:var(--text-panel);border:1px solid var(--border);border-radius:999px;background:var(--card)}
+
+/* ============ SPLASH ============ */
+#screen-splash{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  background:var(--bg);transition:opacity .5s ease}
+#screen-splash.fade-out{opacity:0;pointer-events:none}
+.splash-logo{width:96px;height:96px;border-radius:26px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(155deg,rgba(0,229,201,.14),rgba(0,229,201,.02));border:1.5px solid rgba(0,229,201,.4);box-shadow:0 0 40px -8px rgba(0,229,201,.5)}
+.splash-logo svg{width:54px;height:54px}
+.splash-word{font-size:22px;font-weight:800}
+.splash-word b{color:var(--cyan-bright)}
+
+/* ============ LOGIN ============ */
+#screen-login{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:24px}
+#screen-login.active{display:flex}
+.login-card{width:100%;max-width:380px;padding:34px 28px;text-align:center}
+.login-card .splash-logo{width:64px;height:64px;margin:0 auto 16px;border-radius:20px}
+.login-card .splash-logo svg{width:36px;height:36px}
+.login-card h1{font-size:21px;font-weight:800;margin-bottom:6px}
+.login-card p.sub{font-size:12.5px;color:var(--text-panel);margin-bottom:22px;line-height:1.5}
+.field{margin-bottom:12px;text-align:left}
+.field-shell{display:flex;align-items:center;gap:10px;background:#0F1A1F;border:1px solid var(--border);border-radius:13px;padding:13px 14px}
+.field-shell:focus-within{border-color:var(--border-strong)}
+.field-shell svg{width:17px;height:17px;color:var(--text-3);flex-shrink:0}
+.field-shell input{background:transparent;border:none;outline:none;flex:1;font-size:13.5px;min-width:0}
+.field-shell input::placeholder{color:var(--text-3)}
+.login-divider{display:flex;align-items:center;gap:10px;margin:16px 0;font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.google-btn svg{width:16px;height:16px}
+
+/* ============ APP SHELL ============ */
+#app-shell{display:none;min-height:100dvh;flex-direction:column}
+#app-shell.show{display:flex}
+.topbar{position:sticky;top:0;z-index:30;height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;background:rgba(6,15,18,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.player-chip{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--cyan-bright),var(--purple-bright));
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#04211D;border:2px solid rgba(255,255,255,.15)}
+.player-chip .pname{font-size:12.5px;font-weight:700;line-height:1.2}
+.player-chip .prole{font-size:10.5px;color:var(--text-panel)}
+.flask-counter{display:flex;align-items:center;gap:7px;background:rgba(0,229,201,.09);border:1px solid rgba(0,229,201,.3);
+  border-radius:999px;padding:7px 13px;color:var(--cyan-bright);font-weight:800;font-size:13px}
+.flask-counter svg{width:16px;height:16px}
+#flaskCount{transition:transform .3s var(--ease)}
+#flaskCount.bump{transform:scale(1.4)}
+
+.content{flex:1;padding:18px 16px calc(var(--bottomnav-h) + 20px)}
+.content-inner{max-width:900px;margin:0 auto}
+.screen{display:none}
+.screen.active{display:block;animation:fadeIn .35s var(--ease) both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page-head{margin-bottom:18px}
+.page-head .kicker{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan-bright);opacity:.85}
+.page-head h1{font-size:21px;font-weight:800;margin-top:5px}
+.page-head p{font-size:12.5px;color:var(--text-panel);margin-top:4px;line-height:1.5}
+
+/* ============ BOTTOM NAV ============ */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;height:var(--bottomnav-h);display:flex;align-items:center;justify-content:space-around;
+  padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(6,15,18,.92);backdrop-filter:blur(18px);border-top:1px solid var(--border)}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:12px;color:var(--text-3);flex:1;max-width:80px;position:relative}
+.nav-btn svg{width:21px;height:21px}
+.nav-btn span{font-size:10px;font-weight:700}
+.nav-btn.active{color:var(--cyan-bright)}
+.nav-btn.active svg{filter:drop-shadow(0 0 6px rgba(0,229,201,.6))}
+/* TAREFA 5 — aba Games bloqueada */
+.nav-btn.nav-disabled{opacity:.5;pointer-events:none}
+.nav-soon-tag{position:absolute;top:-4px;right:2px;font-size:7px;font-weight:800;text-transform:uppercase;background:var(--card);
+  border:1px solid var(--border);color:var(--text-panel);padding:1px 4px;border-radius:5px;letter-spacing:.02em}
+
+/* ============ TOAST ============ */
+#toast{position:fixed;left:50%;bottom:calc(var(--bottomnav-h) + 16px);transform:translate(-50%,14px);z-index:90;
+  background:#0F1E22;border:1px solid rgba(0,229,201,.35);border-radius:14px;padding:12px 18px;font-size:13px;font-weight:700;
+  opacity:0;transition:opacity .3s ease,transform .3s ease;max-width:88vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ============ INÍCIO — TRILHA / RANKING ============ */
+.trail-wrap{position:relative;padding:20px 10px 10px;min-height:640px}
+.trail-svg{position:absolute;inset:0;width:100%;height:100%}
+.trail-node{position:absolute;width:46px;height:46px;border-radius:50%;background:var(--card);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--text-3);transform:translate(-50%,-50%)}
+.trail-node.reached{border-color:var(--cyan-bright);color:var(--cyan-bright);box-shadow:0 0 16px -4px rgba(0,229,201,.6)}
+.trail-avatar{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px}
+.trail-avatar .a-chip{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
+  color:#fff;border:2px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.trail-avatar.me .a-chip{width:40px;height:40px;font-size:13px;background:linear-gradient(135deg,var(--cyan-bright),var(--purple-bright));
+  color:#04211D;border:2.5px solid #fff;box-shadow:0 0 18px -2px rgba(0,229,201,.8);animation:meBob 1.8s ease-in-out infinite}
+@keyframes meBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.trail-avatar .a-name{font-size:9px;font-weight:700;color:var(--text-panel);background:rgba(0,0,0,.5);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.ranking-legend{display:flex;gap:14px;margin-top:14px;font-size:11px;color:var(--text-panel);flex-wrap:wrap}
+.ranking-legend span{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ============ SIMULAÇÕES ============ */
+.module-list{display:flex;flex-direction:column;gap:10px}
+.module-row{display:flex;align-items:center;gap:14px;padding:15px 16px;border-radius:16px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:transform .15s,border-color .15s}
+.module-row:hover{transform:translateY(-1px);border-color:rgba(0,229,201,.3)}
+.module-row.locked{opacity:.5;pointer-events:none;filter:grayscale(1)}
+.module-row .m-icon{width:42px;height:42px;border-radius:12px;background:rgba(0,229,201,.1);color:var(--cyan-bright);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.module-row .m-icon svg{width:20px;height:20px}
+.module-row .m-body{flex:1;min-width:0}
+.module-row .m-body .mt{font-size:14px;font-weight:700}
+.module-row .m-body .ms{font-size:11.5px;color:var(--text-panel);margin-top:2px}
+.module-row .m-badge{font-size:10px;font-weight:800;text-transform:uppercase;padding:4px 9px;border-radius:7px;background:rgba(0,229,117,.15);color:var(--success)}
+
+#labExperiment{display:none;margin-top:6px}
+#labExperiment.active{display:block}
+.lab-topbar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lab-topbar button{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lab-topbar button svg{width:16px;height:16px}
+.lab-topbar .kicker{font-size:10.5px;font-weight:800;text-transform:uppercase;color:var(--cyan-bright)}
+.lab-topbar h2{font-size:15px;font-weight:800}
+.lab-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+@media (max-width:720px){ .lab-grid{grid-template-columns:1fr} }
+.lab-card{padding:20px}
+.lab-card h3{font-size:15px;margin-bottom:12px}
+.lab-card p{font-size:12.5px;color:var(--text-panel);line-height:1.75;margin-bottom:12px}
+.lab-eq{background:rgba(0,229,201,.08);border:1px solid rgba(0,229,201,.25);border-radius:12px;padding:12px;text-align:center;
+  font-family:var(--font-mono);font-size:12.5px;color:var(--cyan-bright);margin-bottom:12px}
+
+/* linha de EPI base (usada nas duas telas, com modificadores abaixo) */
+.epi-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,.03);border:1.4px solid var(--border);margin-bottom:9px}
+.epi-row svg{width:19px;height:19px;color:var(--text-panel);flex-shrink:0}
+.epi-row span{flex:1;font-size:13px;font-weight:700}
+.epi-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0}
+
+/* TAREFA 1 — EPI da Teoria: estritamente visual, sem hover, destaque amarelo de alerta */
+.epi-row.epi-visual{pointer-events:none;cursor:default;border-color:rgba(255,215,0,.35);background:rgba(255,215,0,.05)}
+.epi-row.epi-visual svg{color:var(--alert)}
+.epi-row.epi-visual span{color:var(--alert)}
+.epi-row.epi-visual .epi-check{border-color:var(--alert)}
+.epi-note{font-size:11px;color:var(--text-3);margin-top:6px;line-height:1.5}
+
+/* TAREFA 2 — EPI da Prática (Lobby): interativo, com hover e check verde ao equipar */
+.epi-row.epi-interactive{cursor:pointer;transition:all .15s}
+.epi-row.epi-interactive:hover{border-color:rgba(0,229,201,.35);background:rgba(255,255,255,.05)}
+.epi-row.epi-interactive.checked{border-color:var(--success);background:rgba(0,229,117,.1)}
+.epi-row.epi-interactive.checked svg,.epi-row.epi-interactive.checked span{color:var(--success)}
+.epi-row.epi-interactive.checked .epi-check{background:var(--success);border-color:var(--success)}
+
+/* ---------- Prática 2D: Mesa de Laboratório + Béquer + botões de ação ---------- */
+#labPractice{display:none;margin-top:16px}
+#labPractice.active{display:block}
+.bench-frame{position:relative;transition:opacity .3s,filter .3s}
+.bench-frame.locked{opacity:.4;filter:grayscale(.7);pointer-events:none}
+.bench-lock-msg{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;color:var(--text-panel);
+  background:rgba(0,0,0,.5);padding:5px 12px;border-radius:999px;display:none;z-index:4;white-space:nowrap}
+.bench-frame.locked .bench-lock-msg{display:block}
+.bench-table{background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);
+  border-radius:20px;padding:34px 20px 24px;display:flex;align-items:flex-end;justify-content:center;min-height:190px;overflow:visible}
+.beaker-big{position:relative;width:96px;height:116px;border:3px solid var(--cyan-bright);border-top:none;border-radius:0 0 22px 22px;
+  background:rgba(255,255,255,.03);box-shadow:0 0 24px -8px rgba(0,229,201,.3);overflow:visible}
+.beaker-big::before{content:'';position:absolute;top:-3px;left:-8px;right:-8px;height:3px;background:var(--cyan-bright);border-radius:2px}
+.beaker-carbon{position:absolute;left:0;right:0;bottom:0;height:0%;border-radius:4px 4px 2px 2px;
+  background:linear-gradient(180deg,#3a3a3a,#0a0a0a);box-shadow:0 0 14px 2px rgba(0,0,0,.6);
+  transition:height 2.2s cubic-bezier(.2,.8,.2,1)}
+.beaker-carbon.grow{height:120%}
+.bench-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.bench-action{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:14px;background:var(--card);
+  border:1.4px solid var(--border);font-size:13px;font-weight:700;text-align:left;transition:border-color .15s,background .15s}
+.ba-num{width:24px;height:24px;border-radius:50%;background:rgba(0,229,201,.15);color:var(--cyan-bright);
+  display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;flex-shrink:0}
+.bench-action.next{border-color:var(--cyan-bright)}
+.bench-action.next .ba-num{animation:pulseNum 1s ease-in-out infinite}
+@keyframes pulseNum{0%,100%{box-shadow:0 0 0 0 rgba(0,229,201,.55)}50%{box-shadow:0 0 0 7px rgba(0,229,201,0)}}
+.bench-action.done{opacity:.4;pointer-events:none}
+
+#completeModal{position:fixed;inset:0;z-index:85;display:none;align-items:center;justify-content:center;background:rgba(4,9,11,.75);backdrop-filter:blur(4px);padding:20px}
+#completeModal.show{display:flex}
+.complete-card{width:100%;max-width:340px;padding:28px;text-align:center}
+.complete-card .ring{width:70px;height:70px;border-radius:50%;margin:0 auto 14px;background:rgba(0,229,117,.12);border:2px solid var(--success);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px -6px rgba(0,229,117,.5)}
+.complete-card .ring svg{width:32px;height:32px;color:var(--success)}
+.complete-card h3{font-size:17px;margin-bottom:8px}
+.complete-card p{font-size:12.5px;color:var(--text-panel);line-height:1.6;margin-bottom:18px}
+
+/* ============ GAMES ============ */
+.games-fab{position:fixed;top:calc(var(--topbar-h) + 12px);left:16px;z-index:25;width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan-bright),var(--cyan));color:#04211D;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 22px -8px rgba(0,229,201,.6)}
+.games-fab svg{width:24px;height:24px}
+.game-row{display:flex;align-items:center;gap:14px;padding:15px 16px;border-radius:16px;background:var(--card);border:1px solid var(--border);margin-bottom:10px}
+.game-row.locked{opacity:.45;filter:grayscale(1)}
+.game-row .g-icon{width:42px;height:42px;border-radius:12px;background:rgba(155,79,224,.14);color:var(--purple-bright);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.game-row.locked .g-icon{background:rgba(255,255,255,.06);color:var(--text-3)}
+.game-row .g-body{flex:1}
+.game-row .g-body .gt{font-size:13.5px;font-weight:700}
+.game-row .g-body .gs{font-size:11px;color:var(--text-panel);margin-top:2px}
+
+/* ============ EVOLUÇÃO ============ */
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.metric-box{padding:16px 12px;border-radius:16px;border:1px solid var(--border)}
+.metric-box.ok{background:linear-gradient(155deg,rgba(0,229,117,.14),rgba(0,229,117,.03));border-color:rgba(0,229,117,.3)}
+.metric-box.bad{background:linear-gradient(155deg,rgba(255,77,77,.14),rgba(255,77,77,.03));border-color:rgba(255,77,77,.3)}
+.metric-box .ml{font-size:10.5px;color:var(--text-panel);font-weight:700;text-transform:uppercase}
+.metric-box .mv{font-size:22px;font-weight:800;margin-top:8px}
+.metric-box.ok .mv{color:var(--success)}
+.metric-box.bad .mv{color:var(--error)}
+@media (max-width:520px){ .metric-grid{grid-template-columns:1fr} }
+.chart-card{margin-top:16px;padding:18px 14px;border-radius:18px}
+.chart-card h4{font-size:13.5px;font-weight:700;margin-bottom:12px}
+
+/* ============ QUESTÕES (reconstruída — Tarefa 3) ============ */
+.qmenu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){ .qmenu-grid{grid-template-columns:1fr} }
+.qmenu-card{padding:20px}
+.qmenu-card h3{font-size:15px;margin-bottom:6px}
+.qmenu-card p{font-size:12px;color:var(--text-panel);line-height:1.6;margin-bottom:14px}
+.quiz-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.quiz-head-row .qprog{font-size:12px;font-weight:700;color:var(--text-panel)}
+.qcard{padding:18px}
+.qcard .qtag{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--cyan-bright);background:rgba(255,255,255,.06);padding:4px 10px;border-radius:999px}
+.qcard p{font-size:13.5px;color:var(--text-1);margin-top:12px;line-height:1.6}
+.qalt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);
+  border:1.6px solid var(--border);font-size:12.5px;color:var(--text-panel);margin-top:9px;transition:all .15s}
+.qalt:hover:not(.locked){border-color:rgba(0,229,201,.4)}
+.qalt .qa-letter{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;flex-shrink:0;color:var(--text-panel)}
+.qalt.correct{border-color:var(--success);background:rgba(0,229,117,.1)}
+.qalt.correct .qa-letter{background:var(--success);color:#04211D}
+.qalt.incorrect{border-color:var(--error);background:rgba(255,77,77,.1)}
+.qalt.incorrect .qa-letter{background:var(--error);color:#fff}
+.qalt.locked{pointer-events:none}
+.q-result-card{padding:26px;text-align:center}
+.q-result-card h3{font-size:17px;margin-bottom:8px}
+.q-result-card p{font-size:12.5px;color:var(--text-panel);margin-bottom:16px}
+
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important;transition-duration:.001ms!important} }
+</style>
+</head>
+<body>
+
+<div class="bg-ambient" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="flaskIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/><path d="M7 2h10"/>
+  </symbol>
+</svg>
+
+<!-- ============ SPLASH ============ -->
+<div id="screen-splash">
+  <div class="splash-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#00E5C9" stroke-width="1.6"><use href="#flaskIcon"/></svg></div>
+  <div class="splash-word">Quatrion <b>Lab</b></div>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div id="screen-login">
+  <div class="login-card glass">
+    <div class="splash-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#00E5C9" stroke-width="1.6"><use href="#flaskIcon"/></svg></div>
+    <h1>Acessar o Laboratório</h1>
+    <p class="sub">Entre com sua matrícula para continuar seus experimentos.</p>
+    <form id="loginForm">
+      <div class="field"><div class="field-shell">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2.5"/><circle cx="12" cy="10" r="2.4"/><path d="M7.5 17c1-2.2 2.7-3 4.5-3s3.5.8 4.5 3"/></svg>
+        <input type="text" placeholder="Matrícula" required>
+      </div></div>
+      <div class="field"><div class="field-shell">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+        <input type="password" placeholder="Senha" required>
+      </div></div>
+      <button type="submit" class="btn btn-cyan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+        Entrar
+      </button>
+    </form>
+    <div class="login-divider">ou</div>
+    <button class="btn btn-outline google-btn" id="googleLoginBtn">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16 4 9 8.5 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 35.5 26.9 36.5 24 36.5c-5.2 0-9.6-3.3-11.2-7.9l-6.6 5.1C9 39.4 16 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.5l6.6 5.4C41.8 35.9 44 30.4 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+      Entrar com Google
+    </button>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app-shell">
+  <header class="topbar">
+    <div class="player-chip">
+      <div class="avatar">AL</div>
+      <div><div class="pname">Aluno Quatrion</div><div class="prole">Turma 3A</div></div>
+    </div>
+    <div class="flask-counter">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#flaskIcon"/></svg>
+      <span id="flaskCount" class="mono">0</span>
+    </div>
+  </header>
+
+  <div class="content"><div class="content-inner">
+
+    <!-- ============ INÍCIO / TRILHA ============ -->
+    <section class="screen active" id="screen-inicio">
+      <div class="page-head"><span class="kicker">Quatrion Lab · Turma 3A</span><h1>Trilha da Turma</h1><p>Conclua experimentos para avançar casas na trilha. Colegas com a mesma pontuação dividem a mesma casa.</p></div>
+      <div class="glass trail-wrap" id="trailWrap"></div>
+      <div class="ranking-legend">
+        <span><span class="dot" style="background:linear-gradient(135deg,#00E5C9,#9B4FE0)"></span>Você</span>
+        <span><span class="dot" style="background:#FFB703"></span>Ana</span>
+        <span><span class="dot" style="background:#FF6FA5"></span>Bruno</span>
+        <span><span class="dot" style="background:#4FA8FF"></span>Carla</span>
+      </div>
+    </section>
+
+    <!-- ============ SIMULAÇÕES ============ -->
+    <section class="screen" id="screen-simulacoes">
+      <div class="page-head"><span class="kicker">Quatrion Lab · Simulações</span><h1>O Laboratório</h1><p>Escolha um módulo para iniciar a teoria e a prática 2D.</p></div>
+
+      <div class="module-list" id="moduleList">
+        <div class="module-row" id="modSerpente">
+          <div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/><path d="M7 2h10"/></svg></div>
+          <div class="m-body"><div class="mt">Exp. 01: Serpente de Carbono</div><div class="ms">Desidratação do açúcar com H₂SO₄</div></div>
+          <span class="m-badge" id="modSerpenteBadge" style="display:none">Concluído</span>
+        </div>
+        <div class="module-row locked">
+          <div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M11 20V4M18 20v-7"/></svg></div>
+          <div class="m-body"><div class="mt">Nomenclatura IUPAC</div><div class="ms">Em breve</div></div>
+        </div>
+        <div class="module-row locked">
+          <div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/></svg></div>
+          <div class="m-body"><div class="mt">Isomeria Espacial</div><div class="ms">Em breve</div></div>
+        </div>
+      </div>
+
+      <!-- ETAPA A: teoria (EPI aqui é só ilustrativo — Tarefa 1) -->
+      <div id="labExperiment">
+        <div class="lab-topbar">
+          <button id="labBackBtn1" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div><div class="kicker">Quatrion Lab · Experimento 01</div><h2>Serpente de Carbono (Desidratação do Açúcar)</h2></div>
+        </div>
+        <div class="lab-grid">
+          <div class="glass lab-card">
+            <h3>Teoria</h3>
+            <p>O ácido sulfúrico (H₂SO₄) atua como um potente <strong>agente desidratante</strong> sobre a sacarose (C₁₂H₂₂O₁₁): ele retira hidrogênio e oxigênio na proporção exata da água, desidratando o açúcar.</p>
+            <p>O resultado é uma <strong>massa expansiva de carvão</strong> (carbono grafítico) que cresce para fora do recipiente, acompanhada de vapor de água e gases.</p>
+            <div class="lab-eq">C₁₂H₂₂O₁₁ → 12 C + 11 H₂O</div>
+            <p>A reação é fortemente exotérmica — a mistura escurece, se expande e libera vapor acre. No laboratório real ela exige capela e supervisão.</p>
+          </div>
+          <div class="glass lab-card">
+            <h3>EPIs obrigatórios <span style="color:var(--alert);font-size:11px;font-weight:700">(alerta de segurança)</span></h3>
+            <div class="epi-row epi-visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="12" r="3.2"/><circle cx="17" cy="12" r="3.2"/><path d="M10.2 12h3.6"/></svg>
+              <span>Óculos de Proteção</span><span class="epi-check"></span>
+            </div>
+            <div class="epi-row epi-visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3l4 2 4-2 3 4-2 2v11a1 1 0 01-1 1H8a1 1 0 01-1-1V9L5 7z"/></svg>
+              <span>Jaleco</span><span class="epi-check"></span>
+            </div>
+            <div class="epi-row epi-visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 11V6a2 2 0 014 0v4M11 10V5a2 2 0 014 0v5M15 10V7a2 2 0 014 0v7a5 5 0 01-5 5H9a5 5 0 01-5-5v-3a2 2 0 014 0"/></svg>
+              <span>Luvas Nitrílicas</span><span class="epi-check"></span>
+            </div>
+            <p class="epi-note">Lista apenas ilustrativa — os EPIs só se tornam interativos na Prática 2D.</p>
+          </div>
+        </div>
+        <button class="btn btn-cyan" id="goPracticeBtn" style="margin-top:16px;max-width:280px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Ir para a Prática 2D
+        </button>
+
+        <!-- ETAPA B: prática 2D (Tarefa 2 — bancada refeita) -->
+        <div id="labPractice">
+          <div class="lab-topbar">
+            <button id="labBackBtn2" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <div><div class="kicker">Prática 2D</div><h2>Equipe-se e monte a reação na ordem correta</h2></div>
+          </div>
+          <div class="lab-grid">
+            <div class="glass lab-card" style="max-width:260px">
+              <h3>EPIs Obrigatórios</h3>
+              <div class="epi-row epi-interactive" data-epi2="oculos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="12" r="3.2"/><circle cx="17" cy="12" r="3.2"/><path d="M10.2 12h3.6"/></svg><span>Óculos</span><span class="epi-check"></span></div>
+              <div class="epi-row epi-interactive" data-epi2="luvas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 11V6a2 2 0 014 0v4M11 10V5a2 2 0 014 0v5M15 10V7a2 2 0 014 0v7a5 5 0 01-5 5H9a5 5 0 01-5-5v-3a2 2 0 014 0"/></svg><span>Luvas</span><span class="epi-check"></span></div>
+              <div class="epi-row epi-interactive" data-epi2="jaleco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3l4 2 4-2 3 4-2 2v11a1 1 0 01-1 1H8a1 1 0 01-1-1V9L5 7z"/></svg><span>Jaleco</span><span class="epi-check"></span></div>
+            </div>
+
+            <div class="bench-frame locked" id="benchFrame">
+              <div class="bench-lock-msg">🔒 Equipe os 3 EPIs para liberar a bancada</div>
+              <div class="bench-table">
+                <div class="beaker-big"><div class="beaker-carbon" id="beakerCarbon"></div></div>
+              </div>
+              <div class="bench-actions">
+                <button class="bench-action" data-step="1" id="actAcucar"><span class="ba-num">1</span> Adicionar Açúcar</button>
+                <button class="bench-action" data-step="2" id="actAcido"><span class="ba-num">2</span> Adicionar Ácido Sulfúrico</button>
+                <button class="bench-action" data-step="3" id="actBastao"><span class="ba-num">3</span> Mexer com Bastão</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GAMES ============ -->
+    <section class="screen" id="screen-games">
+      <div class="page-head"><span class="kicker">Quatrion Lab · Games</span><h1>Prática Social</h1><p>Registre fotos dos seus experimentos reais e ganhe pontos na trilha.</p></div>
+      <div id="gamesList">
+        <div class="game-row" id="gameSerpente">
+          <div class="g-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/></svg></div>
+          <div class="g-body"><div class="gt">Serpente de Carbono</div><div class="gs" id="gameSerpenteStatus">Conclua o experimento em Simulações para desbloquear</div></div>
+        </div>
+        <div class="game-row locked">
+          <div class="g-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M11 20V4M18 20v-7"/></svg></div>
+          <div class="g-body"><div class="gt">Nomenclatura IUPAC</div><div class="gs">Bloqueado</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVOLUÇÃO (Tarefa 4 — contadores dinâmicos) ============ -->
+    <section class="screen" id="screen-evolucao">
+      <div class="page-head"><span class="kicker">Quatrion Lab · Evolução</span><h1>Evolução</h1><p>Seu desempenho em tempo real nas questões e experimentos.</p></div>
+      <div class="metric-grid">
+        <div class="metric-box ok"><div class="ml">Acertos</div><div class="mv mono" id="evoAcertos">0</div></div>
+        <div class="metric-box bad"><div class="ml">Erros</div><div class="mv mono" id="evoErros">0</div></div>
+        <div class="metric-box"><div class="ml">Experimentos</div><div class="mv mono" id="evoExpCount">0</div></div>
+      </div>
+      <div class="glass chart-card">
+        <h4>Desempenho geral</h4>
+        <svg viewBox="0 0 300 130" style="width:100%;height:auto">
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00E5C9" stop-opacity=".35"/><stop offset="100%" stop-color="#00E5C9" stop-opacity="0"/></linearGradient></defs>
+          <polyline points="10,90 70,75 130,82 190,50 250,55 290,20" fill="none" stroke="#00E5C9" stroke-width="2.4" stroke-linecap="round"/>
+          <polygon points="10,90 70,75 130,82 190,50 250,55 290,20 290,110 10,110" fill="url(#g1)"/>
+          <g fill="#00E5C9"><circle cx="10" cy="90" r="3.5"/><circle cx="70" cy="75" r="3.5"/><circle cx="130" cy="82" r="3.5"/><circle cx="190" cy="50" r="3.5"/><circle cx="250" cy="55" r="3.5"/><circle cx="290" cy="20" r="4"/></g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ============ QUESTÕES (reconstruída — Tarefa 3) ============ -->
+    <section class="screen" id="screen-questoes">
+      <div class="page-head"><span class="kicker">Quatrion Lab · Questões</span><h1>Banco de Questões</h1><p>Escolha um bloco de 10 questões para praticar.</p></div>
+
+      <div class="qmenu-grid" id="questoesMenu">
+        <div class="glass qmenu-card">
+          <h3>Questões Rápidas</h3>
+          <p>10 questões sorteadas do banco geral de Química.</p>
+          <button class="btn btn-cyan btn-sm" id="qBtnRapidas">Começar</button>
+        </div>
+        <div class="glass qmenu-card">
+          <h3>Química Orgânica</h3>
+          <p>10 questões temáticas sobre funções orgânicas e cadeias carbônicas.</p>
+          <button class="btn btn-cyan btn-sm" id="qBtnOrganica">Começar</button>
+        </div>
+      </div>
+
+      <div id="questoesQuiz" style="display:none">
+        <div class="quiz-head-row">
+          <span class="qprog" id="qProgress">Questão 1 de 10</span>
+          <button class="btn-ghost-sm" id="qExitBtn">Sair</button>
+        </div>
+        <div class="glass qcard">
+          <span class="qtag" id="qTag">Química</span>
+          <p id="qEnunciado"></p>
+          <div id="qAlternatives"></div>
+        </div>
+      </div>
+
+      <div id="questoesResult" style="display:none">
+        <div class="glass q-result-card">
+          <h3 id="qResultTitle">Concluído!</h3>
+          <p id="qResultMsg"></p>
+          <button class="btn btn-cyan btn-sm" id="qBackToMenuBtn" style="margin:0 auto">Voltar</button>
+        </div>
+      </div>
+    </section>
+
+  </div></div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 001 1h3v-6h4v6h3a1 1 0 001-1v-9"/></svg><span>Início</span></button>
+    <button class="nav-btn" data-screen="simulacoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6v7l5 11a2 2 0 01-1.8 2.8H5.8A2 2 0 014 20l5-11V2z"/><path d="M7 2h10"/></svg><span>Simulações</span></button>
+    <button class="nav-btn" data-screen="questoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="13" height="17" rx="2"/><path d="M8 8h5M8 12h5"/><circle cx="17" cy="17" r="3.2"/></svg><span>Questões</span></button>
+    <button class="nav-btn" data-screen="evolucao"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M11 20V4M18 20v-7"/><path d="M3 20h18"/></svg><span>Evolução</span></button>
+    <!-- TAREFA 5 — Games desativado -->
+    <button class="nav-btn nav-disabled" data-screen="games" id="navGames" aria-disabled="true">
+      <span class="nav-soon-tag">Em breve</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="8" width="19" height="10" rx="5"/><path d="M7 11v4M5 13h4"/><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="18.5" cy="14.5" r="1" fill="currentColor" stroke="none"/></svg>
+      <span>Games</span>
+    </button>
+  </nav>
+
+  <button class="games-fab" id="photoFab" aria-label="Adicionar foto do experimento" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</div>
+
+<div id="completeModal">
+  <div class="glass complete-card">
+    <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg></div>
+    <h3>Experimento concluído!</h3>
+    <p>Você observou a carbonização da sacarose formando a "serpente de carbono". +1 frasco adicionado ao seu progresso.</p>
+    <button class="btn btn-cyan" id="closeCompleteBtn">Voltar às Simulações</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= ESTADO GLOBAL ================= */
+const state = { flasks:0, trailPosition:0, epi2:{oculos:false,jaleco:false,luvas:false}, benchStep:0, serpenteDone:false };
+const progress = { acertos:0, erros:0 };  // TAREFA 4 — contador global de Evolução
+const CLASSMATES = [ {name:'Ana', pos:3, color:'#FFB703'}, {name:'Bruno', pos:5, color:'#FF6FA5'}, {name:'Carla', pos:5, color:'#4FA8FF'} ];
+const TRAIL_NODES = 10;
+
+/* ================= BANCO DE QUESTÕES (2 blocos de 10, Tarefa 3) ================= */
+const RAPIDAS_BANK = [
+{tag:'Química Geral',enunciado:'Qual dos ácidos abaixo é classificado como um hidrácido e é o principal componente do suco gástrico?',alts:['H2SO4','HCl','H3PO4','HNO3'],correta:1},
+{tag:'Química Geral',enunciado:'O gás oxigênio (O2) e o ozônio (O3) são formados pelo mesmo elemento. Esse fenômeno é chamado de:',alts:['Isomeria','Alotropia','Semelhança isotópica','Hibridização'],correta:1},
+{tag:'Química Geral',enunciado:'Qual é a geometria molecular do CO2 prevista pela teoria VSEPR?',alts:['Angular','Trigonal plana','Linear','Tetraédrica'],correta:2},
+{tag:'Química Geral',enunciado:'Soluções aquosas diluídas de NaOH a 25°C apresentam valores de pH:',alts:['Iguais a 7','Menores que 7','Maiores que 7','Iguais a 0'],correta:2},
+{tag:'Química Geral',enunciado:'Na neutralização total entre H2SO4 e NaOH, qual é o sal neutro formado?',alts:['NaHSO4','Na2SO4','Na2S','Na(OH)SO4'],correta:1},
+{tag:'Química Geral',enunciado:'Qual substância apresenta ligação predominantemente covalente polar?',alts:['Cl2','NaCl','HCl','Fe'],correta:2},
+{tag:'Química Geral',enunciado:'O CaCO3, ao se decompor pelo calor, forma óxido de cálcio e CO2. Ele é classificado como:',alts:['Sal ácido','Sal neutro','Sal básico','Sal hidratado'],correta:1},
+{tag:'Química Geral',enunciado:'O Al(OH)3, usado como antiácido estomacal, é quimicamente classificado como:',alts:['Base fraca e insolúvel','Base forte e solúvel','Ácido de Arrhenius','Sal neutro'],correta:0},
+{tag:'Química Geral',enunciado:'Qual óxido, ao reagir com a água da chuva, forma um ácido forte (chuva ácida)?',alts:['CO','SO3','Na2O','NO'],correta:1},
+{tag:'Química Geral',enunciado:'O NaCl dissolvido em água sofre dissociação iônica. As partículas na sua rede cristalina se ligam por:',alts:['Ligações covalentes','Ligações iônicas','Ligações metálicas','Forças de London'],correta:1}
+];
+const ORGANICA_BANK = [
+{tag:'Química Orgânica',enunciado:'O ácido acetilsalicílico (AAS) possui quais funções orgânicas em sua estrutura?',alts:['Éter e amida','Ácido carboxílico e éster','Álcool e cetona','Aldeído e ácido carboxílico'],correta:1},
+{tag:'Química Orgânica',enunciado:'O biodiesel é quimicamente classificado como uma mistura de:',alts:['Ácidos carboxílicos','Ésteres de ácidos graxos','Álcoois superiores','Hidrocarbonetos parafínicos'],correta:1},
+{tag:'Química Orgânica',enunciado:'Para que um composto apresente atividade óptica, a condição estrutural necessária é:',alts:['Ligações duplas conjugadas','Carbono ligado a 4 ligantes diferentes','Anel aromático plano','Cadeia obrigatoriamente fechada'],correta:1},
+{tag:'Química Orgânica',enunciado:'O monômero utilizado na síntese do polietileno (PEAD) é o:',alts:['Etano','Eteno (etileno)','Ácido etanoico','Cloreto de vinila'],correta:1},
+{tag:'Química Orgânica',enunciado:'A oxidação branda do propan-2-ol (álcool secundário) produz:',alts:['Um aldeído','Uma cetona (propanona)','Um ácido carboxílico','Um éter'],correta:1},
+{tag:'Química Orgânica',enunciado:'A função orgânica mais comum associada a essências e flavorizantes de frutas é o:',alts:['Ácido carboxílico','Éster','Hidrocarboneto','Aldeído pesado'],correta:1},
+{tag:'Química Orgânica',enunciado:'No etino (C2H2), a hibridização dos átomos de carbono é:',alts:['sp3','sp2','sp','Sem hibridização'],correta:2},
+{tag:'Química Orgânica',enunciado:'Qual das opções abaixo apresenta isomeria geométrica (cis-trans)?',alts:['Propeno','But-2-eno','2-metilprop-1-eno','Etano'],correta:1},
+{tag:'Química Orgânica',enunciado:'O náilon (poliamida) é sintetizado por meio de uma polimerização por:',alts:['Adição radicalar','Condensação, com eliminação de água','Hidrogenação catalítica','Saponificação cruzada'],correta:1},
+{tag:'Química Orgânica',enunciado:'A glicose em cadeia aberta é classificada funcionalmente como um(a):',alts:['Aldose (poli-hidroxialdeído)','Cetose (poli-hidroxicetona)','Ácido carboxílico polifuncional','Éter cíclico saturado'],correta:0}
+];
+let quiz = { bank:[], index:0, correctCount:0, wrongCount:0 };
+
+/* ================= SPLASH -> LOGIN ================= */
+setTimeout(()=>{
+  const splash = document.getElementById('screen-splash');
+  splash.classList.add('fade-out');
+  setTimeout(()=>{ splash.style.display='none'; document.getElementById('screen-login').classList.add('active'); }, 500);
+}, 2000);
+
+function enterApp(){
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('app-shell').classList.add('show');
+  renderTrail();
+}
+document.getElementById('loginForm').addEventListener('submit', e=>{ e.preventDefault(); enterApp(); });
+document.getElementById('googleLoginBtn').addEventListener('click', enterApp);
+
+/* ================= TOAST ================= */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.classList.remove('show'), 2400);
+}
+
+/* ================= NAVEGAÇÃO (bottom nav) ================= */
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(btn.classList.contains('nav-disabled')) return; // TAREFA 5
+    const name = btn.dataset.screen;
+    document.querySelectorAll('.screen').forEach(s=> s.classList.toggle('active', s.id==='screen-'+name));
+    document.querySelectorAll('.nav-btn').forEach(b=> b.classList.toggle('active', b===btn));
+    document.getElementById('photoFab').style.display = name==='games' ? 'flex' : 'none';
+    window.scrollTo(0,0);
+  });
+});
+
+/* ================= CONTADOR DE FRASCOS (mantido) ================= */
+function addFlask(n){
+  state.flasks += n;
+  const el = document.getElementById('flaskCount');
+  el.textContent = state.flasks;
+  el.classList.add('bump');
+  setTimeout(()=> el.classList.remove('bump'), 300);
+  document.getElementById('evoExpCount').textContent = state.flasks;
+}
+
+/* ================= TAREFA 4 — Evolução: Acertos/Erros em tempo real ================= */
+function recordAnswer(isCorrect){
+  if(isCorrect) progress.acertos++; else progress.erros++;
+  document.getElementById('evoAcertos').textContent = progress.acertos;
+  document.getElementById('evoErros').textContent = progress.erros;
+  try{ localStorage.setItem('quatrion_progress', JSON.stringify(progress)); }catch(e){}
+}
+
+/* ================= TRILHA / RANKING ================= */
+function trailNodeCoords(i){
+  const cols = [22, 50, 78];
+  const col = cols[i % 3 === 0 ? 1 : (i % 2 === 0 ? 0 : 2)];
+  return { x: col, y: 40 + i*58 };
+}
+function renderTrail(){
+  const wrap = document.getElementById('trailWrap');
+  const totalHeight = 40 + TRAIL_NODES*58 + 40;
+  wrap.style.minHeight = totalHeight+'px';
+  let svgLines = '', nodesHtml = '';
+  const coordsList = [];
+  for(let i=0;i<TRAIL_NODES;i++){
+    const c = trailNodeCoords(i);
+    coordsList.push(c);
+    if(i>0){
+      const p = coordsList[i-1];
+      svgLines += `<line x1="${p.x}%" y1="${p.y}" x2="${c.x}%" y2="${c.y}" stroke="rgba(0,229,201,.35)" stroke-width="3" stroke-dasharray="6 8"/>`;
+    }
+    nodesHtml += `<div class="trail-node ${i<=state.trailPosition?'reached':''}" style="left:${c.x}%;top:${c.y}px">${i+1}</div>`;
+  }
+  const groups = {};
+  CLASSMATES.forEach(c=>{ (groups[c.pos] = groups[c.pos]||[]).push(c); });
+  let avatarsHtml = '';
+  Object.keys(groups).forEach(pos=>{
+    const list = groups[pos];
+    const c = coordsList[Math.min(pos, TRAIL_NODES-1)];
+    list.forEach((cm, idx)=>{
+      const offsetX = (idx - (list.length-1)/2) * 20;
+      avatarsHtml += `<div class="trail-avatar" style="left:calc(${c.x}% + ${offsetX}px); top:${c.y-34}px">
+        <div class="a-chip" style="background:${cm.color}">${cm.name.slice(0,2).toUpperCase()}</div>
+        <div class="a-name">${cm.name}</div></div>`;
+    });
+  });
+  const me = coordsList[Math.min(state.trailPosition, TRAIL_NODES-1)];
+  avatarsHtml += `<div class="trail-avatar me" style="left:${me.x}%; top:${me.y-40}px">
+    <div class="a-chip">EU</div><div class="a-name">Você</div></div>`;
+  wrap.innerHTML = `<svg class="trail-svg" style="height:${totalHeight}px">${svgLines}</svg>${nodesHtml}${avatarsHtml}`;
+}
+function advanceTrail(steps){
+  state.trailPosition = Math.min(state.trailPosition + steps, TRAIL_NODES-1);
+  renderTrail();
+}
+
+/* ================= SIMULAÇÕES: navegação teoria/prática ================= */
+document.getElementById('modSerpente').addEventListener('click', ()=>{
+  document.getElementById('moduleList').style.display = 'none';
+  document.getElementById('labExperiment').classList.add('active');
+});
+function backToModuleList(){
+  document.getElementById('labExperiment').classList.remove('active');
+  document.getElementById('labPractice').classList.remove('active');
+  document.getElementById('moduleList').style.display = 'flex';
+}
+document.getElementById('labBackBtn1').addEventListener('click', backToModuleList);
+document.getElementById('labBackBtn2').addEventListener('click', ()=> document.getElementById('labPractice').classList.remove('active'));
+document.getElementById('goPracticeBtn').addEventListener('click', ()=>{
+  document.getElementById('labPractice').classList.add('active');
+  document.getElementById('labPractice').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+/* EPI do Lobby (Prática) — únicos clicáveis, desbloqueiam a bancada (Tarefa 2) */
+document.querySelectorAll('.epi-row.epi-interactive').forEach(row=>{
+  row.addEventListener('click', ()=>{
+    const key = row.dataset.epi2;
+    state.epi2[key] = !state.epi2[key];
+    row.classList.toggle('checked', state.epi2[key]);
+    checkBenchUnlock();
+  });
+});
+function checkBenchUnlock(){
+  const allEquipped = state.epi2.oculos && state.epi2.jaleco && state.epi2.luvas;
+  document.getElementById('benchFrame').classList.toggle('locked', !allEquipped);
+  if(allEquipped) updateBenchHint();
+}
+function updateBenchHint(){
+  document.querySelectorAll('.bench-action').forEach(item=>{
+    const step = parseInt(item.dataset.step, 10);
+    item.classList.toggle('next', step === state.benchStep+1 && !item.classList.contains('done'));
+  });
+}
+['actAcucar','actAcido','actBastao'].forEach((id, idx)=>{
+  document.getElementById(id).addEventListener('click', function(){
+    const step = idx+1;
+    if(document.getElementById('benchFrame').classList.contains('locked')) return;
+    if(step !== state.benchStep+1){ toast('Siga a ordem indicada.'); return; }
+    state.benchStep = step;
+    this.classList.add('done');
+    this.classList.remove('next');
+    if(state.benchStep === 3){
+      document.getElementById('beakerCarbon').classList.add('grow');
+      setTimeout(finishSerpente, 2200);
+    } else {
+      updateBenchHint();
+    }
+  });
+});
+
+function finishSerpente(){
+  document.getElementById('completeModal').classList.add('show');
+  addFlask(1);
+  advanceTrail(1);
+  if(!state.serpenteDone){
+    state.serpenteDone = true;
+    document.getElementById('modSerpenteBadge').style.display = 'inline-block';
+    document.getElementById('gameSerpente').classList.remove('locked');
+    document.getElementById('gameSerpenteStatus').textContent = 'Desbloqueado — registre uma foto do experimento real';
+  }
+}
+document.getElementById('closeCompleteBtn').addEventListener('click', ()=>{
+  document.getElementById('completeModal').classList.remove('show');
+  state.benchStep = 0; state.epi2 = {oculos:false,jaleco:false,luvas:false};
+  document.querySelectorAll('.epi-interactive').forEach(r=> r.classList.remove('checked'));
+  document.querySelectorAll('.bench-action').forEach(b=>{ b.classList.remove('done','next'); });
+  document.getElementById('beakerCarbon').classList.remove('grow');
+  document.getElementById('benchFrame').classList.add('locked');
+  backToModuleList();
+});
+
+/* ================= GAMES: FAB de foto ================= */
+document.getElementById('photoFab').addEventListener('click', ()=>{
+  if(!state.serpenteDone){ toast('Conclua um experimento em Simulações primeiro.'); return; }
+  toast('Foto enviada! Experimento registrado com sucesso. +1 ponto.');
+  addFlask(1);
+  advanceTrail(1);
+});
+document.getElementById('gameSerpente').addEventListener('click', ()=>{
+  if(!state.serpenteDone) return;
+  document.getElementById('photoFab').click();
+});
+
+/* ================= QUESTÕES — motor de quiz (Tarefas 3 e 4) ================= */
+function shuffle(arr){ return arr.map(v=>({v,r:Math.random()})).sort((a,b)=>a.r-b.r).map(o=>o.v); }
+function startQuiz(bank){
+  quiz = { bank: shuffle(bank), index:0, correctCount:0, wrongCount:0 };
+  document.getElementById('questoesMenu').style.display = 'none';
+  document.getElementById('questoesResult').style.display = 'none';
+  document.getElementById('questoesQuiz').style.display = 'block';
+  renderQuestion();
+}
+function renderQuestion(){
+  const q = quiz.bank[quiz.index];
+  document.getElementById('qProgress').textContent = 'Questão '+(quiz.index+1)+' de '+quiz.bank.length;
+  document.getElementById('qTag').textContent = q.tag;
+  document.getElementById('qEnunciado').textContent = q.enunciado;
+  const wrap = document.getElementById('qAlternatives');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.alts.forEach((text, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'qalt';
+    btn.innerHTML = '<span class="qa-letter">'+letters[i]+'</span><span>'+text+'</span>';
+    btn.addEventListener('click', ()=> answerQuestion(i, btn));
+    wrap.appendChild(btn);
+  });
+}
+function answerQuestion(chosenIndex, btnEl){
+  const q = quiz.bank[quiz.index];
+  const isCorrect = chosenIndex === q.correta;
+  document.querySelectorAll('.qalt').forEach((b,i)=>{
+    b.classList.add('locked');
+    if(i === q.correta) b.classList.add('correct');
+    else if(i === chosenIndex) b.classList.add('incorrect');
+  });
+  if(isCorrect) quiz.correctCount++; else quiz.wrongCount++;
+  recordAnswer(isCorrect);   // TAREFA 4 — atualiza Evolução imediatamente
+  setTimeout(()=>{
+    quiz.index++;
+    if(quiz.index < quiz.bank.length) renderQuestion();
+    else finishQuiz();
+  }, 900);
+}
+function finishQuiz(){
+  document.getElementById('questoesQuiz').style.display = 'none';
+  document.getElementById('questoesResult').style.display = 'block';
+  document.getElementById('qResultTitle').textContent = quiz.correctCount >= 7 ? 'Mandou bem!' : 'Continue praticando!';
+  document.getElementById('qResultMsg').textContent = 'Você acertou '+quiz.correctCount+' de '+quiz.bank.length+' questões.';
+}
+document.getElementById('qBtnRapidas').addEventListener('click', ()=> startQuiz(RAPIDAS_BANK));
+document.getElementById('qBtnOrganica').addEventListener('click', ()=> startQuiz(ORGANICA_BANK));
+document.getElementById('qExitBtn').addEventListener('click', ()=>{
+  document.getElementById('questoesQuiz').style.display = 'none';
+  document.getElementById('questoesMenu').style.display = 'grid';
+});
+document.getElementById('qBackToMenuBtn').addEventListener('click', ()=>{
+  document.getElementById('questoesResult').style.display = 'none';
+  document.getElementById('questoesMenu').style.display = 'grid';
+});
+</script>
+</body>
+</html>
